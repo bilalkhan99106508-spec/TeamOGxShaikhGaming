@@ -1,0 +1,38 @@
+name: Build Android App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: |
+          unzip -q TeamOGxShaikh_PlayStore_Ready_Project.zip -d project
+          cp -r project/* .
+          cp -r project/.[!.]* . 2>/dev/null || true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build AAB
+        run: gradle bundleRelease
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: TeamOGxShaikh-AAB
+          path: app/build/outputs/bundle/release/app-release.aab
